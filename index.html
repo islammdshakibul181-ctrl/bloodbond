@@ -299,7 +299,7 @@
     SUPABASE_PUBLISHABLE_KEY
   );
 
-  console.log("BloodBond Supabase connected!");async function testSupabaseConnection() {
+  console.log("BloodBond Supabase connected!");alert("BloodBond JavaScript is running!"); function testSupabaseConnection() {
   const { data, error } = await supabaseClient
     .from("profiles")
     .select("id")
