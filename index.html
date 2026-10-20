@@ -288,5 +288,17 @@
       );
     });
   </script>
-</body>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+  const SUPABASE_URL = "তোমার_PROJECT_URL";
+  const SUPABASE_PUBLISHABLE_KEY = "তোমার_PUBLISHABLE_KEY";
+
+  const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY
+  );
+
+  console.log("BloodBond Supabase connected!");
+</script></body>
 </html>
