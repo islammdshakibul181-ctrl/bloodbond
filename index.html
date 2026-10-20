@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#b91c35">
+  <title>BloodBond | রক্তদানের বন্ধন</title>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, "Noto Sans Bengali", sans-serif;
+      background: #fff7f7;
+      color: #28212a;
+    }
+
+    header {
+      background: #b91c35;
+      color: white;
+      padding: 18px 6%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .logo { font-size: 23px; font-weight: bold; }
+    header a { color: white; text-decoration: none; }
+
+    .hero {
+      padding: 45px 20px;
+      text-align: center;
+      background: linear-gradient(135deg, #b91c35, #ed5364);
+      color: white;
+    }
+
+    .hero h1 { font-size: 32px; margin: 0 0 14px; }
+    .hero p { line-height: 1.8; }
+
+    .btn {
+      border: 0;
+      border-radius: 9px;
+      padding: 12px 18px;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-white { background: white; color: #b91c35; }
+    .btn-red { background: #b91c35; color: white; }
+
+    main {
+      max-width: 900px;
+      margin: auto;
+      padding: 25px 16px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 15px;
+      padding: 22px;
+      margin-bottom: 22px;
+      box-shadow: 0 4px 18px #6010200d;
+    }
+
+    h2 { color: #a71931; margin-top: 0; }
+
+    .groups {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin: 18px 0;
+    }
+
+    .group {
+      padding: 15px 5px;
+      background: #fff0f2;
+      border: 1px solid #f4c5cc;
+      border-radius: 10px;
+      color: #b91c35;
+      font-size: 19px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .group.active {
+      background: #b91c35;
+      color: white;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 13px;
+      margin: 7px 0 14px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font: inherit;
+      background: white;
+    }
+
+    label { font-weight: bold; font-size: 14px; }
+
+    .donor {
+      border: 1px solid #f1d8dc;
+      border-radius: 11px;
+      padding: 15px;
+      margin-top: 12px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .blood {
+      min-width: 58px;
+      height: 58px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      background: #b91c35;
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .donor p { margin: 5px 0; color: #665c61; font-size: 14px; }
+    .notice { font-size: 13px; color: #6b6266; line-height: 1.8; }
+
+    footer {
+      padding: 24px;
+      text-align: center;
+      color: #76666b;
+      font-size: 13px;
+    }
+
+    @media (max-width: 480px) {
+      .hero h1 { font-size: 26px; }
+      .groups { grid-template-columns: repeat(4, 1fr); }
+      .card { padding: 17px; }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="logo">🩸 BloodBond</div>
+    <a href="#profile">প্রোফাইল তৈরি</a>
+  </header>
+
+  <section class="hero">
+    <h1>রক্তের বন্ধনে, বাঁচুক প্রাণ ❤️</h1>
+    <p>
+      আপনার একটুখানি সহযোগিতা কারও জীবনে ফিরিয়ে আনতে পারে
+      আশার আলো।
+    </p>
+    <a class="btn btn-white" href="#search">রক্তদাতা খুঁজুন</a>
+  </section>
+
+  <main>
+    <section class="card" id="search">
+      <h2>🩸 রক্তদাতা খুঁজুন</h2>
+      <p>প্রয়োজনীয় রক্তের গ্রুপ নির্বাচন করুন।</p>
+
+      <div class="groups" id="groups">
+        <button class="group active" data-group="All">সব</button>
+        <button class="group" data-group="A+">A+</button>
+        <button class="group" data-group="A-">A-</button>
+        <button class="group" data-group="B+">B+</button>
+        <button class="group" data-group="B-">B-</button>
+        <button class="group" data-group="O+">O+</button>
+        <button class="group" data-group="O-">O-</button>
+        <button class="group" data-group="AB+">AB+</button>
+        <button class="group" data-group="AB-">AB-</button>
+      </div>
+
+      <label for="area">জেলা বা এলাকার নাম</label>
+      <input id="area" placeholder="যেমন: Rangpur">
+
+      <button class="btn btn-red" id="searchBtn">
+        দাতা খুঁজুন
+      </button>
+
+      <div id="results" aria-live="polite"></div>
+
+      <p class="notice">
+        এটি প্রাথমিক ডেমো। নিচের কোনো বাস্তব রক্তদাতার তথ্য
+        নয়; ডেটাবেস যুক্ত করার পর আসল প্রোফাইল দেখা যাবে।
+      </p>
+    </section>
+
+    <section class="card" id="profile">
+      <h2>👤 নিজের প্রোফাইল তৈরি</h2>
+      <p>এটি আপাতত ফর্মের নমুনা, তথ্য সংরক্ষণ করবে না।</p>
+
+      <form id="profileForm">
+        <label for="name">পূর্ণ নাম</label>
+        <input id="name" required maxlength="80"
+          placeholder="আপনার পূর্ণ নাম">
+
+        <label for="blood">রক্তের গ্রুপ</label>
+        <select id="blood" required>
+          <option value="">নির্বাচন করুন</option>
+          <option>A+</option><option>A-</option>
+          <option>B+</option><option>B-</option>
+          <option>O+</option><option>O-</option>
+          <option>AB+</option><option>AB-</option>
+        </select>
+
+        <label for="district">জেলা</label>
+        <input id="district" required maxlength="80"
+          placeholder="আপনার জেলা">
+
+        <label for="phone">যোগাযোগের নম্বর</label>
+        <input id="phone" type="tel" required
+          maxlength="20" placeholder="মোবাইল নম্বর">
+
+        <label for="lastDonation">সর্বশেষ রক্তদানের তারিখ (ঐচ্ছিক)</label>
+        <input id="lastDonation" type="date">
+
+        <button class="btn btn-red" type="submit">
+          প্রোফাইল তৈরি করুন
+        </button>
+      </form>
+
+      <p class="notice">
+        নিরাপদ লগইন ও ডেটাবেস যুক্ত না হওয়া পর্যন্ত
+        এখানে বাস্তব ব্যক্তিগত তথ্য জমা দেবেন না।
+      </p>
+    </section>
+
+    <section class="card" id="request">
+      <h2>🚨 রক্তের প্রয়োজন?</h2>
+      <p>
+        রক্তের গ্রুপ, হাসপাতাল এবং প্রয়োজনের সময় উল্লেখ করে
+        রক্তের অনুরোধ তৈরি করার ব্যবস্থা পরবর্তী ধাপে যোগ করব।
+      </p>
+      <button class="btn btn-red"
+        onclick="alert('রক্তের অনুরোধের সুবিধা পরবর্তী সংস্করণে যোগ হবে।')">
+        রক্তের অনুরোধ
+      </button>
+    </section>
+  </main>
+
+  <footer>
+    BloodBond — রক্তদানে গড়ি মানবতার বন্ধন ❤️<br>
+    জরুরি চিকিৎসার প্রয়োজনে হাসপাতাল বা চিকিৎসকের সঙ্গে যোগাযোগ করুন।
+  </footer>
+
+  <script>
+    let selectedGroup = "All";
+
+    document.querySelectorAll(".group").forEach(button => {
+      button.addEventListener("click", () => {
+        selectedGroup = button.dataset.group;
+
+        document.querySelectorAll(".group").forEach(item => {
+          item.classList.toggle("active", item === button);
+        });
+      });
+    });
+
+    document.getElementById("searchBtn").addEventListener("click", () => {
+      const area = document.getElementById("area").value.trim();
+      const results = document.getElementById("results");
+
+      results.replaceChildren();
+
+      const message = document.createElement("p");
+      message.style.marginTop = "18px";
+      message.textContent =
+        "এখনো কোনো বাস্তব দাতার ডেটাবেস যুক্ত হয়নি। " +
+        "নির্বাচিত গ্রুপ: " + selectedGroup +
+        (area ? " | এলাকা: " + area : "") +
+        "। পরবর্তী ধাপে ডেটাবেস যুক্ত করব।";
+
+      results.appendChild(message);
+    });
+
+    document.getElementById("profileForm").addEventListener("submit", event => {
+      event.preventDefault();
+
+      alert(
+        "ফর্মটি ঠিকভাবে পূরণ হয়েছে! এটি শুধু ডেমো। " +
+        "আপনার তথ্য সংরক্ষণ করা হয়নি।"
+      );
+    });
+  </script>
+</body>
+</html>
