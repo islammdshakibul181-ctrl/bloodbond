@@ -313,6 +313,20 @@
 }
 
 testSupabaseConnection();
-</script></body>
+</script>async function testSupabaseConnection() {
+  const { data, error } = await supabaseClient
+    .from("profiles")
+    .select("id")
+    .limit(1);
+
+  if (error) {
+    console.error("Connection error:", error.message);
+    alert("Database error: " + error.message);
+  } else {
+    alert("BloodBond Database connected!");
+  }
+}
+
+testSupabaseConnection();</body>
 </html>const SUPABASE_URL = "তোমার আসল Project URL";
 const SUPABASE_PUBLISHABLE_KEY = "তোমার আসল Publishable Key";
