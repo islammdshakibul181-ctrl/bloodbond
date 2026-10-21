@@ -177,7 +177,7 @@ player.position.set(0,0,2);
 // Keep world objects
 const obstacles=[];
 const coins=[];
-const marks=[];
+for(let z=5;z>-145;z-=8){
 
 function spawnObstacle(lane,z){
   const type=Math.random()<.5?'jump':'slide';
