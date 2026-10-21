@@ -1,13 +1,364 @@
-from pathlib import Path
-html = r'''
-Jungle Rush 3D *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#07150e;font-family:system-ui,Arial,sans-serif;touch-action:none} #game{display:block;width:100%;height:100%} #hud{position:fixed;top:12px;left:12px;right:12px;display:flex;justify-content:space-between;gap:8px;z-index:2;color:white;font-weight:800;text-shadow:0 2px 5px #000;pointer-events:none} .pill{background:#092016cc;border:1px solid #b5e7b055;border-radius:14px;padding:8px 12px} #message{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:3;background:#00100999;color:white;text-align:center;padding:24px} #panel{width:min(340px,100%);background:#102b1eeb;border:1px solid #b5e7b077;border-radius:22px;padding:24px 20px;box-shadow:0 12px 40px #0008} h1{margin:0 0 8px;font-size:30px;line-height:1.05}p{color:#d4e7d9;line-height:1.5;margin:10px 0 18px} button{border:0;border-radius:14px;padding:13px 20px;background:#f5c84b;color:#1b2915;font-size:17px;font-weight:900;cursor:pointer} #controls{position:fixed;left:0;right:0;bottom:18px;display:flex;justify-content:space-between;padding:0 18px;z-index:2;pointer-events:none} .cluster{display:flex;gap:10px}.ctrl{pointer-events:auto;width:60px;height:56px;border:1px solid #ffffff66;color:white;background:#082319bb;font-size:24px;padding:0;border-radius:18px;box-shadow:0 4px 0 #0004} #hint{position:fixed;bottom:88px;width:100%;text-align:center;color:#ffffffcc;font-size:12px;text-shadow:0 2px 5px #000;pointer-events:none;z-index:2} 
-🪙 0
-DISTANCE 0 m
-Swipe ◀ ▶ to move · Swipe ↑ to jump · Swipe ↓ to slide
-◀▶
-⬆⬇
-🌿 JUNGLE
-RUSH 3D
-Run through the ancient jungle temple, collect gold coins and dodge the stone obstacles!
-START RUN ▶
-(() => { const canvas=document.getElementById('game'),message=document.getElementById('message'),panel=document.getElementById('panel'); const coinsEl=document.getElementById('coins'),distanceEl=document.getElementById('distance'); if(!window.THREE){panel.innerHTML='<h1>3D library not loaded</h1><p>Connect to the internet and reload this page.</p><button onclick="location.reload()">RELOAD</button>';return;} const scene=new THREE.Scene();scene.background=new THREE.Color(0x91c7a0);scene.fog=new THREE.Fog(0x91c7a0,24,100); const camera=new THREE.PerspectiveCamera(65,innerWidth/innerHeight,.1,180);camera.position.set(0,5.5,9.5);camera.lookAt(0,1.2,-5); const renderer=new THREE.WebGLRenderer({canvas,antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace; scene.add(new THREE.HemisphereLight(0xd9f7ff,0x243b19,2)); const sun=new THREE.DirectionalLight(0xfff0c6,2.2);sun.position.set(-5,12,7);sun.castShadow=true;scene.add(sun); const mat=(color,roughness=.9)=>new THREE.MeshStandardMaterial({color,roughness}); const groundMat=mat(0x496b35),pathMat=mat(0x82765b),edgeMat=mat(0x534d3d),stoneMat=mat(0x77796c),darkStone=mat(0x4e5946); const ground=new THREE.Mesh(new THREE.PlaneGeometry(200,200),groundMat);ground.rotation.x=-Math.PI/2;ground.position.set(0,-.12,-55);ground.receiveShadow=true;scene.add(ground); const path=new THREE.Mesh(new THREE.PlaneGeometry(8,180),pathMat);path.rotation.x=-Math.PI/2;path.position.set(0,-.08,-65);path.receiveShadow=true;scene.add(path); for(const x of [-4.15,4.15]){const e=new THREE.Mesh(new THREE.BoxGeometry(.25,.18,180),edgeMat);e.position.set(x,0,-65);scene.add(e);} const marks=[];for(let z=8;z>-145;z-=7)for(const x of [-1.33,1.33]){const m=new THREE.Mesh(new THREE.BoxGeometry(.055,.025,2.2),mat(0xb7ad8b));m.position.set(x,.01,z);scene.add(m);marks.push(m);} function makeTree(x,z,s=1){const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.18*s,.28*s,2.8*s,6),mat(0x62462c));trunk.position.set(x,1.25*s,z);trunk.castShadow=true;scene.add(trunk);for(let i=0;i<3;i++){const crown=new THREE.Mesh(new THREE.IcosahedronGeometry((1.05-i*.12)*s,1),mat(i===1?0x2c6a35:0x174b2b));crown.position.set(x+(i-1)*.25*s,2.65*s+i*.35*s,z);crown.castShadow=true;scene.add(crown);}} for(let z=8;z>-145;z-=8){makeTree(-6.3-Math.random()*2,z,.8+Math.random()*.7);makeTree(6.3+Math.random()*2,z-3,.8+Math.random()*.7);} function pillar(x,y,z,w,h,d,material=stoneMat){const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;scene.add(o);return o;} pillar(-3.7,2,-28,.8,4,.8);pillar(3.7,2,-28,.8,4,.8);pillar(0,4,-28,8.2,.7,1,darkStone); for(let z=-45;z>-140;z-=32){pillar(-4.3,1.7,z,.55,3.4,.55);pillar(4.3,1.7,z,.55,3.4,.55);} const player=new THREE.Group();scene.add(player); const bodyMat=mat(0x2d7c62),skinMat=mat(0xd99c6b),pantsMat=mat(0x263c39),packMat=mat(0x9b4e26); const torso=new THREE.Mesh(new THREE.BoxGeometry(.58,.78,.34),bodyMat);torso.position.y=1.05;torso.castShadow=true;player.add(torso); const head=new THREE.Mesh(new THREE.SphereGeometry(.24,12,10),skinMat);head.position.y=1.65;head.castShadow=true;player.add(head); const hair=new THREE.Mesh(new THREE.SphereGeometry(.245,10,8,0,Math.PI*2,0,Math.PI*.6),mat(0x2b2118));hair.position.y=1.73;player.add(hair); const pack=new THREE.Mesh(new THREE.BoxGeometry(.4,.48,.2),packMat);pack.position.set(0,1.1,.26);player.add(pack); const arms=[],legs=[];for(const s of [-1,1]){const a=new THREE.Mesh(new THREE.BoxGeometry(.18,.58,.19),bodyMat);a.position.set(s*.39,1.06,0);a.castShadow=true;player.add(a);arms.push(a);const l=new THREE.Mesh(new THREE.BoxGeometry(.22,.58,.24),pantsMat);l.position.set(s*.17,.38,0);l.castShadow=true;player.add(l);legs.push(l);} player.position.set(0,0,2);const shadow=new THREE.Mesh(new THREE.CircleGeometry(.55,18),new THREE.MeshBasicMaterial({color:0x142015,transparent:true,opacity:.35}));shadow.rotation.x=-Math.PI/2;shadow.position.set(0,.015,2);scene.add(shadow); const goldMat=new THREE.MeshStandardMaterial({color:0xffc928,metalness:.65,roughness:.25}); let running=false,lane=0,coins=0,distance=0,speed=13,jumpY=0,jumpV=0,slideTimer=0,runTime=0,spawnTimer=0; const obstacles=[],coinItems=[]; function addObstacle(li,z,type){const g=new THREE.Group();g.position.set(li*2.5,0,z);if(type==='log'){const log=new THREE.Mesh(new THREE.BoxGeometry(1.45,.55,.7),mat(0x6c4224));log.position.y=.28;log.castShadow=true;g.add(log);}else{const b=new THREE.Mesh(new THREE.BoxGeometry(1.25,1.45,.75),stoneMat);b.position.y=.72;b.castShadow=true;b.receiveShadow=true;g.add(b);const stripe=new THREE.Mesh(new THREE.BoxGeometry(1.28,.12,.78),darkStone);stripe.position.y=1;g.add(stripe);}g.userData={type,lane:li};scene.add(g);obstacles.push(g);} function addCoin(li,z){const c=new THREE.Mesh(new THREE.TorusGeometry(.28,.095,8,16),goldMat);c.position.set(li*2.5,1.15,z);c.castShadow=true;scene.add(c);coinItems.push(c);} function spawnSet(z){const li=Math.floor(Math.random()*3)-1;if(Math.random()<.75)addObstacle(li,z,Math.random()<.5?'log':'block');const cl=Math.floor(Math.random()*3)-1;for(let j=0;j<4;j++)addCoin(cl,z-3-j*1.8);} function clearItems(){for(const o of obstacles)scene.remove(o);obstacles.length=0;for(const c of coinItems)scene.remove(c);coinItems.length=0;} function reset(){clearItems();coins=0;distance=0;speed=13;lane=0;jumpY=0;jumpV=0;slideTimer=0;runTime=0;spawnTimer=0;player.position.set(0,0,2);player.scale.y=1;shadow.position.set(0,.015,2);for(let z=-25;z>=-115;z-=17+Math.random()*5)spawnSet(z);coinsEl.textContent='0';distanceEl.textContent='0';running=true;message.style.display='none';} function endGame(){running=false;panel.innerHTML='<h1>🏛️ RUN ENDED</h1><p>Coins: <b>'+coins+'</b><br>Distance: <b>'+Math.floor(distance)+' m</b><br>Give it another run!</p><button id="restart">RUN AGAIN ↻</button>';message.style.display='flex';document.getElementById('restart').onclick=reset;} function moveLeft(){if(running)lane=Math.max(-1,lane-1);}function moveRight(){if(running)lane=Math.min(1,lane+1);}function jump(){if(running&&jumpY===0&&slideTimer<=0)jumpV=8.2;}function slide(){if(running&&jumpY===0)slideTimer=.7;} document.getElementById('left').onclick=moveLeft;document.getElementById('right').onclick=moveRight;document.getElementById('jump').onclick=jump;document.getElementById('slide').onclick=slide;document.getElementById('start').onclick=reset; let touchX=0,touchY=0;window.addEventListener('touchstart',e=>{if(e.target.closest('button'))return;touchX=e.changedTouches[0].clientX;touchY=e.changedTouches[0].clientY;},{passive:true}); window.addEventListener('touchend',e=>{if(e.target.closest('button'))return;const dx=e.changedTouches[0].clientX-touchX,dy=e.changedTouches[0].clientY-touchY;if(Math.max(Math.abs(dx),Math.abs(dy))<25)return;if(Math.abs(dx)>Math.abs(dy))dx<0?moveLeft():moveRight();else dy<0?jump():slide();},{passive:true}); window.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='a')moveLeft();if(e.key==='ArrowRight'||e.key==='d')moveRight();if(e.key==='ArrowUp'||e.key===' ')jump();if(e.key==='ArrowDown'||e.key==='s')slide();}); const clock=new THREE.Clock(); function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.04); if(running){runTime+=dt;distance+=speed*dt;speed=Math.min(21,13+distance*.012);distanceEl.textContent=Math.floor(distance); player.position.x+=(lane*2.5-player.position.x)*Math.min(1,dt*11);if(jumpV!==0||jumpY>0){jumpY+=jumpV*dt;jumpV-=20*dt;if(jumpY<=0){jumpY=0;jumpV=0;}} if(slideTimer>0)slideTimer-=dt;player.scale.y=slideTimer>0?.62:1;player.position.y=slideTimer>0?0:jumpY;shadow.position.x=player.position.x;shadow.material.opacity=.35-jumpY*.1; const stride=Math.sin(runTime*13);legs[0].rotation.x=stride*.65;legs[1].rotation.x=-stride*.65;arms[0].rotation.x=-stride*.5;arms[1].rotation.x=stride*.5;player.rotation.z=(lane*2.5-player.position.x)*-.05; camera.position.x+=(player.position.x*.22-camera.position.x)*dt*2;camera.lookAt(player.position.x*.15,1.2,-5); for(const m of marks){m.position.z+=speed*dt;if(m.position.z>10)m.position.z-=153;} for(const o of obstacles){const before=o.position.z;o.position.z+=speed*dt;if(before<=2.8&&o.position.z>2.8){if(Math.abs(player.position.x-o.userData.lane*2.5)<.95){const avoided=o.userData.type==='log'?(jumpY>.68||slideTimer>0):jumpY>1.55;if(!avoided){endGame();break;}}}} for(let i=obstacles.length-1;i>=0;i--)if(obstacles[i].position.z>12){scene.remove(obstacles[i]);obstacles.splice(i,1);} for(let i=coinItems.length-1;i>=0;i--){const c=coinItems[i];c.position.z+=speed*dt;c.rotation.y+=dt*4;if(Math.abs(c.position.z-2)<.85&&Math.abs(c.position.x-player.position.x)<.9&&Math.abs(jumpY+1-c.position.y)<1.25){coins++;coinsEl.textContent=coins;scene.remove(c);coinItems.splice(i,1);continue;}if(c.position.z>12){scene.remove(c);coinItems.splice(i,1);}} spawnTimer+=dt;if(spawnTimer>2.0){spawnTimer=0;spawnSet(-105);} } renderer.render(scene,camera);} animate();addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));}); })(); ''' Path("/mnt/data/index.html").write_text(html, encoding="utf-8") print("Created /mnt/data/index.html")
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Jungle Rush 3D</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;overflow:hidden;background:#10291a;font-family:Arial,sans-serif;touch-action:manipulation}
+canvas{display:block}
+#hud{position:fixed;top:12px;left:12px;right:12px;display:flex;justify-content:space-between;color:white;font-weight:bold;font-size:18px;z-index:2}
+.pill{background:#10291add;padding:10px 14px;border-radius:12px}
+#menu{position:fixed;inset:0;background:#07170dcc;display:flex;align-items:center;justify-content:center;text-align:center;color:white;z-index:5;padding:20px}
+#panel{background:#163c27;padding:28px 22px;border-radius:22px;max-width:340px;width:100%;border:1px solid #8abf8c}
+h1{font-size:32px;margin:0 0 12px}
+p{line-height:1.5}
+button{border:0;border-radius:12px;padding:14px 18px;background:#ffd447;color:#1b2915;font-size:17px;font-weight:bold}
+#controls{position:fixed;bottom:18px;left:0;right:0;display:flex;justify-content:space-between;padding:0 16px;z-index:3}
+.group{display:flex;gap:10px}
+.ctrl{width:58px;height:55px;padding:0;background:#10291add;color:white;border:1px solid #ffffff66;font-size:24px}
+</style>
+</head>
+<body>
+<div id="hud">
+  <div class="pill">🪙 <span id="score">0</span></div>
+  <div class="pill">🏃 <span id="dist">0</span> m</div>
+</div>
+
+<div id="controls">
+  <div class="group">
+    <button class="ctrl" id="left">◀</button>
+    <button class="ctrl" id="right">▶</button>
+  </div>
+  <div class="group">
+    <button class="ctrl" id="jump">⬆</button>
+    <button class="ctrl" id="slide">⬇</button>
+  </div>
+</div>
+
+<div id="menu">
+  <div id="panel">
+    <h1>🌴 JUNGLE RUSH 3D</h1>
+    <p>Run through the ancient jungle! Collect coins and dodge obstacles.</p>
+    <button id="start">START RUN ▶</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script>
+(() => {
+const menu=document.getElementById('menu');
+const panel=document.getElementById('panel');
+
+if(!window.THREE){
+  panel.innerHTML='<h1>Loading error</h1><p>Connect to the internet and reload the page.</p><button onclick="location.reload()">RELOAD</button>';
+  return;
+}
+
+const scene=new THREE.Scene();
+scene.background=new THREE.Color(0x91bd86);
+scene.fog=new THREE.Fog(0x91bd86,25,100);
+
+const camera=new THREE.PerspectiveCamera(65,innerWidth/innerHeight,.1,150);
+camera.position.set(0,5,9);
+camera.lookAt(0,1,-5);
+
+const renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(innerWidth,innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));
+renderer.shadowMap.enabled=true;
+document.body.insertBefore(renderer.domElement,document.getElementById('hud'));
+
+scene.add(new THREE.HemisphereLight(0xffffff,0x334422,2));
+const light=new THREE.DirectionalLight(0xffedbb,2.5);
+light.position.set(-5,12,6);
+light.castShadow=true;
+scene.add(light);
+
+function material(color){
+  return new THREE.MeshStandardMaterial({color,roughness:.85});
+}
+const green=material(0x315c2b);
+const roadMat=material(0x89785c);
+const stone=material(0x77796b);
+const gold=material(0xffc928);
+const brown=material(0x65452b);
+
+const ground=new THREE.Mesh(new THREE.PlaneGeometry(200,200),green);
+ground.rotation.x=-Math.PI/2;
+ground.position.set(0,-.15,-50);
+scene.add(ground);
+
+const road=new THREE.Mesh(new THREE.PlaneGeometry(8,180),roadMat);
+road.rotation.x=-Math.PI/2;
+road.position.set(0,-.08,-60);
+scene.add(road);
+
+for(let z=5;z>-145;z-=8){
+  for(const x of [-1.3,1.3]){
+    const line=new THREE.Mesh(
+      new THREE.BoxGeometry(.05,.02,2),
+      material(0xc1b18b)
+    );
+    line.position.set(x,.01,z);
+    scene.add(line);
+    marks.push(line);
+  }
+}
+function tree(x,z){
+  const trunk=new THREE.Mesh(
+    new THREE.CylinderGeometry(.2,.3,2.6,7),brown
+  );
+  trunk.position.set(x,1.2,z);
+  scene.add(trunk);
+  const leaves=new THREE.Mesh(
+    new THREE.IcosahedronGeometry(1.15,1),green
+  );
+  leaves.position.set(x,2.7,z);
+  scene.add(leaves);
+}
+const marks=[];
+for(let z=8;z>-140;z-=8){
+  tree(-6.5-Math.random()*1.5,z);
+  tree(6.5+Math.random()*1.5,z-3);
+}
+
+function block(x,y,z,w,h,d,color){
+  const o=new THREE.Mesh(
+    new THREE.BoxGeometry(w,h,d),material(color)
+  );
+  o.position.set(x,y,z);
+  o.castShadow=true;
+  scene.add(o);
+  return o;
+}
+
+// Ancient temple gate
+block(-3.8,2,-25,.8,4,.9,0x77796b);
+block(3.8,2,-25,.8,4,.9,0x77796b);
+block(0,4,-25,8,.6,1,0x4e5946);
+
+// Runner character
+const player=new THREE.Group();
+scene.add(player);
+blockPlayer();
+
+function blockPlayer(){
+  const body=new THREE.Mesh(
+    new THREE.BoxGeometry(.6,.8,.35),material(0x25805c)
+  );
+  body.position.y=1.05;
+  player.add(body);
+
+  const head=new THREE.Mesh(
+    new THREE.SphereGeometry(.25,12,10),material(0xd99c6b)
+  );
+  head.position.y=1.65;
+  player.add(head);
+
+  const hair=new THREE.Mesh(
+    new THREE.SphereGeometry(.26,10,8),material(0x33251b)
+  );
+  hair.scale.y=.5;
+  hair.position.y=1.82;
+  player.add(hair);
+
+  for(const s of [-1,1]){
+    const leg=new THREE.Mesh(
+      new THREE.BoxGeometry(.22,.6,.25),material(0x263c39)
+    );
+    leg.position.set(s*.17,.35,0);
+    player.add(leg);
+  }
+}
+player.position.set(0,0,2);
+
+// Keep world objects
+const obstacles=[];
+const coins=[];
+const marks=[];
+
+function spawnObstacle(lane,z){
+  const type=Math.random()<.5?'jump':'slide';
+  const g=new THREE.Group();
+  g.position.set(lane*2.5,0,z);
+
+  if(type==='jump'){
+    blockGroup(g,1.2,.7,.8,.35,0x65452b);
+  }else{
+    blockGroup(g,1.2,1.5,.7,1.4,0x77796b);
+  }
+  g.userData={lane,type};
+  scene.add(g);
+  obstacles.push(g);
+}
+function blockGroup(g,w,h,d,y,color){
+  const m=new THREE.Mesh(
+    new THREE.BoxGeometry(w,h,d),material(color)
+  );
+  m.position.y=y;
+  m.castShadow=true;
+  g.add(m);
+}
+function spawnCoin(lane,z){
+  const c=new THREE.Mesh(
+    new THREE.TorusGeometry(.27,.09,8,16),gold
+  );
+  c.position.set(lane*2.5,1.2,z);
+  scene.add(c);
+  coins.push(c);
+}
+function spawnSet(z){
+  const lane=Math.floor(Math.random()*3)-1;
+  spawnObstacle(lane,z);
+  const cl=Math.floor(Math.random()*3)-1;
+  for(let i=0;i<4;i++)spawnCoin(cl,z-3-i*1.8);
+}
+
+let running=false,lane=0,score=0,distance=0;
+let jumpY=0,jumpV=0,sliding=0,elapsed=0,spawnTime=0;
+
+function reset(){
+  for(const o of obstacles)scene.remove(o);
+  for(const c of coins)scene.remove(c);
+  obstacles.length=0;
+  coins.length=0;
+
+  lane=0;score=0;distance=0;
+  jumpY=0;jumpV=0;sliding=0;
+  elapsed=0;spawnTime=0;
+  player.position.set(0,0,2);
+  player.scale.y=1;
+
+  for(let z=-25;z>-110;z-=20)spawnSet(z);
+  document.getElementById('score').textContent='0';
+  document.getElementById('dist').textContent='0';
+  running=true;
+  menu.style.display='none';
+}
+
+function endGame(){
+  running=false;
+  panel.innerHTML='<h1>🏛️ GAME OVER</h1><p>Coins: '+score+
+    '<br>Distance: '+Math.floor(distance)+
+    ' m</p><button id="again">PLAY AGAIN ↻</button>';
+  menu.style.display='flex';
+  document.getElementById('again').onclick=reset;
+}
+
+function left(){if(running)lane=Math.max(-1,lane-1);}
+function right(){if(running)lane=Math.min(1,lane+1);}
+function jump(){if(running&&jumpY===0&&sliding<=0)jumpV=8;}
+function slide(){if(running&&jumpY===0)sliding=.7;}
+
+document.getElementById('left').onclick=left;
+document.getElementById('right').onclick=right;
+document.getElementById('jump').onclick=jump;
+document.getElementById('slide').onclick=slide;
+document.getElementById('start').onclick=reset;
+
+let tx=0,ty=0;
+window.addEventListener('touchstart',e=>{
+  if(e.target.closest('button'))return;
+  tx=e.changedTouches[0].clientX;
+  ty=e.changedTouches[0].clientY;
+},{passive:true});
+
+window.addEventListener('touchend',e=>{
+  if(e.target.closest('button'))return;
+  const dx=e.changedTouches[0].clientX-tx;
+  const dy=e.changedTouches[0].clientY-ty;
+  if(Math.max(Math.abs(dx),Math.abs(dy))<25)return;
+  if(Math.abs(dx)>Math.abs(dy))dx<0?left():right();
+  else dy<0?jump():slide();
+},{passive:true});
+
+window.addEventListener('keydown',e=>{
+  if(e.key==='ArrowLeft')left();
+  if(e.key==='ArrowRight')right();
+  if(e.key==='ArrowUp'||e.key===' ')jump();
+  if(e.key==='ArrowDown')slide();
+});
+
+const clock=new THREE.Clock();
+
+function animate(){
+  requestAnimationFrame(animate);
+  const dt=Math.min(clock.getDelta(),.04);
+
+  if(running){
+    elapsed+=dt;
+    distance+=13*dt;
+    document.getElementById('dist').textContent=Math.floor(distance);
+
+    player.position.x+=(lane*2.5-player.position.x)*Math.min(1,dt*10);
+
+    if(jumpV!==0||jumpY>0){
+      jumpY+=jumpV*dt;
+      jumpV-=20*dt;
+      if(jumpY<=0){jumpY=0;jumpV=0;}
+    }
+    if(sliding>0)sliding-=dt;
+
+    player.position.y=sliding>0?0:jumpY;
+    player.scale.y=sliding>0?.65:1;
+
+    camera.position.x+=(player.position.x*.2-camera.position.x)*dt*2;
+    camera.lookAt(player.position.x*.15,1.2,-5);
+
+    for(const m of marks){
+      m.position.z+=13*dt;
+      if(m.position.z>10)m.position.z-=153;
+    }
+
+    for(const o of obstacles){
+      const oldZ=o.position.z;
+      o.position.z+=13*dt;
+      if(oldZ<=2.8&&o.position.z>2.8&&
+        Math.abs(player.position.x-o.userData.lane*2.5)<1){
+        const avoided=o.userData.type==='jump'?jumpY>.8:sliding>0;
+        if(!avoided){endGame();break;}
+      }
+    }
+
+    for(let i=obstacles.length-1;i>=0;i--){
+      if(obstacles[i].position.z>12){
+        scene.remove(obstacles[i]);obstacles.splice(i,1);
+      }
+    }
+
+    for(let i=coins.length-1;i>=0;i--){
+      const c=coins[i];
+      c.position.z+=13*dt;
+      c.rotation.y+=dt*4;
+      if(Math.abs(c.position.z-2)<.8&&
+         Math.abs(c.position.x-player.position.x)<.9){
+        score++;
+        document.getElementById('score').textContent=score;
+        scene.remove(c);coins.splice(i,1);
+      }else if(c.position.z>12){
+        scene.remove(c);coins.splice(i,1);
+      }
+    }
+
+    spawnTime+=dt;
+    if(spawnTime>2.2){
+      spawnTime=0;
+      spawnSet(-100);
+    }
+  }
+
+  renderer.render(scene,camera);
+}
+animate();
+
+window.addEventListener('resize',()=>{
+  camera.aspect=innerWidth/innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth,innerHeight);
+});
+})();
+</script>
+</body>
+</html>
